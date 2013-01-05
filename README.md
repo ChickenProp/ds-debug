@@ -57,6 +57,6 @@ The server is a `ReaderThread` instance, which listens for connections on port 7
     length
     json
 
-where `length` is an integer up to 19 decimal digits long, and `json` is a JSON string encoding a dict. The dict should have keys `name` and `val`, and other keys are ignored.
+where `length` is an integer up to 19 decimal digits long, and `json` is a JSON string of `length` bytes, encoding a dict. The dict should have keys `name` and `val`, and other keys are ignored.
 
 The client simply connects to this, sends one packet of data for each `name=val` pair it was passed. Clients for other languages would be easy to write.
