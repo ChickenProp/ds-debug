@@ -5,7 +5,8 @@ import json
 class Struct(object):
     pass
 
-value = Struct
+values = Struct()
+values._hist = Struct()
 
 status = ""
 
@@ -33,7 +34,14 @@ class ReaderThread(threading.Thread):
 
             while True:
                 status = "Waiting for header"
-                header = sock2.recv(32)
+
+                # If we read too many bytes here, our first read might collect
+                # the entire JSON string and the following header, if they're
+                # sent in quick enough succession. The somewhat hacky solution
+                # is that the JSON won't fit in 20 bytes (at least with the
+                # current schema), and 10^19 - 1 is more than long enough for
+                # any sane purposes (it's almost 2^64).
+                header = sock2.recv(20)
 
                 if len(header) == 0:
                     break
@@ -46,7 +54,15 @@ class ReaderThread(threading.Thread):
                 json_str = init_chunk + sock2.recv(remaining, MSG_WAITALL)
 
                 js = json.loads(json_str)
-                setattr(value, js['name'], js['val'])
+                name = js['name']
+                val = js['val']
+
+                setattr(values, name, val)
+
+                if not hasattr(values._hist, name):
+                    setattr(values._hist, name, [val])
+                else:
+                    getattr(values._hist, name).append(val)
 
 
 def debug(**kw):

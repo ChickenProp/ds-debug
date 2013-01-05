@@ -5,5 +5,5 @@ import readline
 ic = code.InteractiveConsole()
 ic.push("import ds_debug as d")
 ic.push("d.ReaderThread().start()")
-ic.push("v = d.value")
+ic.push("v = d.values")
 ic.interact()
