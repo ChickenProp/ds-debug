@@ -1,0 +1,9 @@
+#! /usr/bin/python
+import code
+
+ic = code.InteractiveConsole()
+#ic.push("from ds_debug import *")
+#ic.push("ReaderThread().start()")
+ic.push("import ds_debug as d")
+ic.push("d.ReaderThread().start()")
+ic.interact()
