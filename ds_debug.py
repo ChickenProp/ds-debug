@@ -3,6 +3,7 @@ from socket import *
 import json
 
 value = None
+status = ""
 
 class ReaderThread(threading.Thread):
     def __init__(self):
@@ -10,7 +11,9 @@ class ReaderThread(threading.Thread):
         self.daemon = True
 
     def run(self):
-        global value
+        global value, status
+
+        status = "Initialising"
 
         sock = socket(AF_INET)
 
@@ -19,13 +22,23 @@ class ReaderThread(threading.Thread):
 
         sock.bind((gethostname(), 7575))
         sock.listen(1)
-        (sock2, address) = sock.accept()
 
         while True:
-            header = sock2.recv(32)
-            json_len, init_chunk = header.split("\n", 1)
+            status = "Waiting for connection"
+            (sock2, address) = sock.accept()
 
-            remaining = int(json_len) - len(init_chunk)
-            json_str = init_chunk + sock2.recv(remaining, MSG_WAITALL)
+            while True:
+                status = "Waiting for header"
+                header = sock2.recv(32)
 
-            value = json.loads(json_str)
+                if len(header) == 0:
+                    break
+
+                json_len, init_chunk = header.split("\n", 1)
+                json_len = int(json_len)
+
+                status = "Waiting for %d bytes of JSON" % (json_len)
+                remaining = json_len - len(init_chunk)
+                json_str = init_chunk + sock2.recv(remaining, MSG_WAITALL)
+
+                value = json.loads(json_str)
