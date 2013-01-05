@@ -2,7 +2,11 @@ import threading
 from socket import *
 import json
 
-value = None
+class Struct(object):
+    pass
+
+value = Struct
+
 status = ""
 
 class ReaderThread(threading.Thread):
@@ -41,4 +45,14 @@ class ReaderThread(threading.Thread):
                 remaining = json_len - len(init_chunk)
                 json_str = init_chunk + sock2.recv(remaining, MSG_WAITALL)
 
-                value = json.loads(json_str)
+                js = json.loads(json_str)
+                setattr(value, js['name'], js['val'])
+
+
+def debug(**kw):
+    sock = socket(AF_INET)
+    sock.connect((gethostname(), 7575))
+    for name, val in kw.iteritems():
+        json_str = json.dumps(dict(name=name, val=val))
+        sock.send("%d\n%s" % (len(json_str), json_str))
+    sock.close()
