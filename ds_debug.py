@@ -5,20 +5,17 @@ import json
 class Struct(object):
     pass
 
-values = Struct()
-values._hist = Struct()
-
-status = ""
-
 class ReaderThread(threading.Thread):
     def __init__(self):
         super(ReaderThread, self).__init__()
         self.daemon = True
 
-    def run(self):
-        global value, status
+        self.values = Struct()
+        self.hist = Struct()
+        self.status = "Uninitialised"
 
-        status = "Initialising"
+    def run(self):
+        self.status = "Initialising"
 
         sock = socket(AF_INET)
 
@@ -29,7 +26,7 @@ class ReaderThread(threading.Thread):
         sock.listen(1)
 
         while True:
-            status = "Waiting for connection"
+            self.status = "Waiting for connection"
             (sock2, address) = sock.accept()
 
             while True:
@@ -57,12 +54,12 @@ class ReaderThread(threading.Thread):
                 name = js['name']
                 val = js['val']
 
-                setattr(values, name, val)
+                setattr(self.values, name, val)
 
-                if not hasattr(values._hist, name):
-                    setattr(values._hist, name, [val])
+                if not hasattr(self.hist, name):
+                    setattr(self.hist, name, [val])
                 else:
-                    getattr(values._hist, name).append(val)
+                    getattr(self.hist, name).append(val)
 
 
 def debug(**kw):

@@ -3,7 +3,9 @@ import code
 import readline
 
 ic = code.InteractiveConsole()
-ic.push("import ds_debug as d")
-ic.push("d.ReaderThread().start()")
-ic.push("v = d.values")
+ic.push("import ds_debug")
+ic.push("thread = ds_debug.ReaderThread()")
+ic.push("thread.start()")
+ic.push("v = thread.values")
+ic.push("h = thread.hist")
 ic.interact()
