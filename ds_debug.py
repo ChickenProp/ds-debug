@@ -64,8 +64,11 @@ class ReaderThread(threading.Thread):
 
 def debug(**kw):
     sock = socket(AF_INET)
-    sock.connect((gethostname(), 7575))
-    for name, val in kw.iteritems():
-        json_str = json.dumps(dict(name=name, val=val))
-        sock.send("%d\n%s" % (len(json_str), json_str))
-    sock.close()
+    try:
+        sock.connect((gethostname(), 7575))
+        for name, val in kw.iteritems():
+            json_str = json.dumps(dict(name=name, val=val))
+            sock.send("%d\n%s" % (len(json_str), json_str))
+        sock.close()
+    except:
+        pass
