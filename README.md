@@ -39,6 +39,8 @@ If you call `debug` again with some of the same variable names, the old values w
 ([13], [[u'hello'], 13], [{u'y': [], u'x': 12}, [u'hello']], [{u'y': [], u'x': 12}])
 ```
 
+(Technically, `v` and `h` are objects of type `storage`, which inherits from `dict` but allows values to be accessed through attribute-lookup syntax. So `v.foo` means the same as `v['foo']`, with the exception that methods of `dict` take priority when there's a conflict: `v.keys()` will always return a list of the names that have been set, even if `'keys'` is one of those names.)
+
 ## Bugs
 
 * Only JSON-serialisable objects can currently be sent.

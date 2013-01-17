@@ -2,16 +2,36 @@ import threading
 from socket import *
 import json
 
-class Struct(object):
-    pass
+# This is web.py's storage, except with an easier-to-read __repr__.
+# Note that dict methods shadow element lookup, so e.g. when x=storage(keys=1),
+# we have x.keys() == ['keys'] rather than x.keys == 1.
+class storage(dict):
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError, k:
+            raise AttributeError, k
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def __delattr__(self, key):
+        try:
+            del self[key]
+        except KeyError, k:
+            raise AttributeError, k
+
+    def __repr__(self):
+        kvs = [ k + '=' + repr(v) for k,v in dict(self).iteritems() ]
+        return 'storage(%s)' % ", ".join(kvs)
 
 class ReaderThread(threading.Thread):
     def __init__(self):
         super(ReaderThread, self).__init__()
         self.daemon = True
 
-        self.values = Struct()
-        self.hist = Struct()
+        self.values = storage()
+        self.hist = storage()
         self.status = "Uninitialised"
 
     def run(self):
@@ -54,12 +74,12 @@ class ReaderThread(threading.Thread):
                 name = js['name']
                 val = js['val']
 
-                setattr(self.values, name, val)
+                self.values[name] = val
 
-                if not hasattr(self.hist, name):
-                    setattr(self.hist, name, [val])
+                if name not in self.hist:
+                    self.hist[name] = [val]
                 else:
-                    getattr(self.hist, name).append(val)
+                    self.hist[name].append(val)
 
 
 def debug(**kw):
