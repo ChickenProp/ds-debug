@@ -28,7 +28,7 @@ storage(y=[], x=12)
 []
 ```
 
-(`dict`s get turned into `storage` objects. These inherit from `dict`, but attribute lookup falls back to item lookup: `v.baz.y` becomes `v.baz['y']`. Attributes that actually exist on `dict` do not get overridden: `s.keys()` is a method call, regardless of whether `s['keys']` exists. `v` is also a `storage`.)
+(`dict`s get turned into `storage` objects. These inherit from `dict`, but attribute lookup falls back to item lookup: `v.baz.y` becomes `v.baz['y']`. Attributes that actually exist on `dict` do not get overridden: `v.baz.keys()` is a method call, regardless of whether `v.baz['keys']` exists. `v` is also a `storage`.)
 
 If you call `debug` again with some of the same variable names, the old values will be overwritten, but a history will be kept in object `h` (another `storage`):
 
