@@ -70,9 +70,9 @@ class ReaderThread(threading.Thread):
                 remaining = json_len - len(init_chunk)
                 json_str = init_chunk + sock2.recv(remaining, MSG_WAITALL)
 
-                js = json.loads(json_str)
-                name = js['name']
-                val = js['val']
+                js = json.loads(json_str, object_hook=lambda d: storage(**d))
+                name = js.name
+                val = js.val
 
                 self.values[name] = val
 
