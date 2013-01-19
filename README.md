@@ -1,4 +1,4 @@
-`ds-debug` is a debugging tool that lets you send data to a python interpreter, as an alternative to printing and examining it by eye.
+`ds-debug` is a debugging tool that lets you send data structures to a python interpreter, as an alternative to printing and examining it by eye.
 
 ## Usage
 
@@ -15,7 +15,7 @@ Now in a seperate process, import `ds_debug` and call its `debug` function with 
 >>> ds.debug(foo=13, bar=['hello'], baz=dict(x=12, y=[]))
 ```
 
-Return to the `ds-debug` process, and these variables will be available as properties of the object `v`.
+Return to the `ds-debug` process, and these variables will be available through the object `v`.
 
 ```python
 >>> v.foo
@@ -23,10 +23,14 @@ Return to the `ds-debug` process, and these variables will be available as prope
 >>> v.bar
 [u'hello']
 >>> v.baz
-{u'y': [], u'x': 12}
+storage(y=[], x=12)
+>>> v.baz.y
+[]
 ```
 
-If you call `debug` again with some of the same variable names, the old values will be overwritten, but a history will be kept in object `h`:
+(`dict`s get turned into `storage` objects. These inherit from `dict`, but attribute lookup falls back to item lookup: `v.baz.y` becomes `v.baz['y']`. Attributes that actually exist on `dict` do not get overridden: `s.keys()` is a method call, regardless of whether `s['keys']` exists. `v` is also a `storage`.)
+
+If you call `debug` again with some of the same variable names, the old values will be overwritten, but a history will be kept in object `h` (another `storage`):
 
 ```python
 # Client process
@@ -34,18 +38,16 @@ If you call `debug` again with some of the same variable names, the old values w
 
 # Server process
 >>> (v.foo, v.bar, v.baz, v.quux)
-(13, 13, [u'hello'], {u'y': [], u'x': 12})
+(13, 13, [u'hello'], storage(y=[], x=12))
 >>> (h.foo, h.bar, h.baz, h.quux)
-([13], [[u'hello'], 13], [{u'y': [], u'x': 12}, [u'hello']], [{u'y': [], u'x': 12}])
+([13], [[u'hello'], 13], [storage(y=[], x=12), [u'hello']], [storage(y=[], x=12)])
 ```
-
-(Technically, `v` and `h` are objects of type `storage`, which inherits from `dict` but allows values to be accessed through attribute-lookup syntax. So `v.foo` means the same as `v['foo']`, with the exception that methods of `dict` take priority when there's a conflict: `v.keys()` will always return a list of the names that have been set, even if `'keys'` is one of those names.)
 
 ## Bugs
 
 * Only JSON-serialisable objects can currently be sent.
 
-* There's no graceful failure handling. E.g. if the server isn't running when you call `debug`, it throws an exception.
+* There's no graceful failure handling.
 
 * Only one server thread runs at a time. If two processes are trying to debug at once, they'll step on each other's toes.
 
@@ -61,4 +63,6 @@ The server is a `ReaderThread` instance, which listens for connections on port 7
 
 where `length` is an integer up to 19 decimal digits long, and `json` is a JSON string of `length` bytes, encoding a dict. The dict should have keys `name` and `val`, and other keys are ignored.
 
-The client simply connects to this, sends one packet of data for each `name=val` pair it was passed. Clients for other languages would be easy to write.
+The client simply connects to this, and sends one packet of data for each `name=val` pair it was passed. Clients for other languages would be easy to write.
+
+For that matter, it would be easy to write another server, if you want to examine your data with something other than python.
