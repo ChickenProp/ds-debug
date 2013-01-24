@@ -90,5 +90,5 @@ def debug(**kw):
             json_str = json.dumps(dict(name=name, val=val))
             sock.send("%d\n%s" % (len(json_str), json_str))
         sock.close()
-    except:
+    except error as e:
         pass
