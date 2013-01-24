@@ -87,7 +87,8 @@ def debug(**kw):
     try:
         sock.connect((gethostname(), 7575))
         for name, val in kw.iteritems():
-            json_str = json.dumps(dict(name=name, val=val))
+            json_str = json.dumps(dict(name=name, val=val),
+                                  default=str)
             sock.send("%d\n%s" % (len(json_str), json_str))
         sock.close()
     except error as e:

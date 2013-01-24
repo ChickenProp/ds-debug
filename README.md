@@ -45,7 +45,7 @@ If you call `debug` again with some of the same variable names, the old values w
 
 ## Bugs
 
-* Only JSON-serialisable objects can currently be sent.
+* Objects that aren't JSON-serializable simply get stringified. There's no way to configure this.
 
 * There's no graceful failure handling.
 
